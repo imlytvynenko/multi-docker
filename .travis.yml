@@ -1,0 +1,21 @@
+language: generic
+sudo: required
+services: 
+  - docker
+
+before_install:
+  - docker build -t ivanly/react-test -f ./client/Dockerfile.dev ./client
+  
+script:
+  - docker run -e CI=true USERNAME/react-test npm test
+  
+after_success:
+  - docker build -t ivnaly/multi-client ./client
+  - docker build -t ivnaly/multi-server ./server
+  - docker build -t ivnaly/multi-nginx ./nginx  
+  - docker build -t ivnaly/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push ivanly/multi-client
+  - docker push ivanly/multi-server
+  - docker push ivanly/multi-ngnix
+  - docker push ivanly/multi-worker
